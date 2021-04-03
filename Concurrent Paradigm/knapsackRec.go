@@ -1,7 +1,3 @@
-/*
-	Ali ABDEDDAIM
-	300113418
-*/
 package main
 
 import(
@@ -18,6 +14,9 @@ import(
 /* 
 	A brute force recursive implementation of 0-1 Knapsack problem 
 	modified from: https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10 
+
+	IMPORTANT : I transformed this implementation into a 
+	brute force recursive **concurrent** solution.
 */
 
 func main(){
