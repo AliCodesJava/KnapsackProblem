@@ -1,9 +1,43 @@
-knapsack(Capacity, L_items_weight, L_items_value, Value, L_items_list).
+knapsack(Capacity, L_items_weight, L_items_value, Value, L_items_list, FULLKTABLE, CR)
+    :- LEN_Y_KTABLE is Capacity + 1, fill(L, 0, LEN_Y_KTABLE), 
+       getVWL(VI,WI,L_items_value,L_items_weight, VWPairs), makeKTable(L, 0, VWPairs, KTABLE),
+       append([L],KTABLE,FULLKTABLE), length(FULLKTABLE, LENTABLE), 
+       LastRowIndex is LENTABLE - 1, nth0(LastRowIndex, FULLKTABLE, LastRow),
+       nth0(Capacity, LastRow, Value).
+       /*getLetters(FULLKTABLE, LastRowIndex, X, Y, Capacity, Value, Letters, CR).*/
 
-solveKnapsack(Filename, Value, L_items_list, KTABLE)
+getLetters(TABLE, currentRowIndex, X, Y, Capacity, Value, Letters, CR) 
+    :-  nth0(currentRowIndex, TABLE, CR), aboveRowIndex is currentRowIndex -1,
+        nth0(aboveRowIndex, TABLE, AR), CR =\= AR, .
+
+
+/*
+    https://stackoverflow.com/questions/21694499/prolog-checking-if-something-is-the-last-item-in-the-list/21694728
+*/
+last(X,[X]).
+last(X,[_|Z]) :- last(X,Z).
+
+/*
+    int value = kTable[kTable.length-1][kTable[0].length-1];
+    for(int row = kTable.length-1; row>0; row--){
+        if(!searchRowForValue(row - 1, value) && value > 0){
+            value -= problemItems[row - 1].getValue();
+
+            knapsack.addToSack(problemItems[row - 1]);
+        }
+    }
+
+    private boolean searchRowForValue(int row, int value){
+        for(int weight = 1; weight<kTable[row].length; weight++){
+            if(kTable[row][weight] == value) return true;
+        }
+        return false;
+    }
+*/
+
+solveKnapsack(Filename, Value, L_items_list)
     :-  readKnapsackFile(Filename, L_len, Names_L, Weights_L, Values_L, Capacity),
-        LEN_Y_KTABLE is Capacity + 1, fill(L, 0, LEN_Y_KTABLE), 
-        getVWL(VI,WI,Values_L,Weights_L, VWPairs), makeKTable(L, 0, VWPairs, KTABLE).
+        knapsack(Capacity, Weights_L, Values_L, Value, L_items_list, FULLKTABLE, CR).
 
 readKnapsackFile(Filename, L_len, Names_L, Weights_L, Values_L, Capacity) 
     :- file_lines(Filename, Lines), 
@@ -11,18 +45,13 @@ readKnapsackFile(Filename, L_len, Names_L, Weights_L, Values_L, Capacity)
     findall(NL,(nth0(Index,Cleaned_Lines,List),nth0(Index2,List,NL)),L),
     extract_l_from_l(I, L, 0, 3, 0, Names_L), 
     extract_l_from_l(I, L, 1, 3, 1, Weights_L), 
-    extract_l_from_l(I, L, 2, 3, 2, Values_L),
-    write(L_len),
-    write(Names_L),
-    write(Weights_L),
-    write(Values_L),
-    write(Capacity).
+    extract_l_from_l(I, L, 2, 3, 2, Values_L).
 
 cleanKnapsackData(Lines, L_len, Names_L, Values_L, Weights_L, Capacity, Cleaned_Lines) 
     :- nth0(0, Lines, StrLen), normalize_space(atom(NormStrLen), StrLen), 
        atom_number(NormStrLen, L_len),
        findall(Clean_line, cleanItemsData(Lines, Index, Clean_line), Cleaned_Lines),
-       CapacityIndex is L_len + 1, write(CapacityIndex),
+       CapacityIndex is L_len + 1,
        nth0(CapacityIndex , Lines, StrCapacity), normalize_space(atom(NormStrCapacity), StrCapacity),
        atom_number(StrCapacity, Capacity).
 /*
@@ -61,14 +90,14 @@ makeKTable(AR, I, L, [R|RR])
 
 makeNextRow(L, _, _, CC, []) :- length(L, LEN), CC>=LEN, !.
 makeNextRow(L, W, V, CC, [NV|R]) 
-    :-  W>CC, nth0(CC, L, NV), write(NV),
+    :-  W>CC, nth0(CC, L, NV),
         NCC is CC + 1, makeNextRow(L, W, V, NCC, R).
 makeNextRow(L, W, V, CC, [NV|R]) 
     :-  nth0(CC, L, AV), 
         AI is CC - W,
         nth0(AI, L, OAV),
         SECOND is V + OAV,
-        my_max(AV, SECOND, NV), write(NV),
+        my_max(AV, SECOND, NV),
         NCC is CC + 1, makeNextRow(L, W, V, NCC, R).
 
 getVW(VI, WI, L_items_weight, L_items_value, V, W) 
