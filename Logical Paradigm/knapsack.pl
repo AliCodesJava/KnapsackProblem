@@ -1,15 +1,39 @@
-knapsack(Capacity, L_items_weight, L_items_value, Value, L_items_list, FULLKTABLE, CR)
+knapsack(Capacity, L_items_weight, L_items_value, Value, L_items_list, FULLKTABLE, Letters)
     :- LEN_Y_KTABLE is Capacity + 1, fill(L, 0, LEN_Y_KTABLE), 
        getVWL(VI,WI,L_items_value,L_items_weight, VWPairs), makeKTable(L, 0, VWPairs, KTABLE),
        append([L],KTABLE,FULLKTABLE), length(FULLKTABLE, LENTABLE), 
        LastRowIndex is LENTABLE - 1, nth0(LastRowIndex, FULLKTABLE, LastRow),
-       nth0(Capacity, LastRow, Value).
-       /*getLetters(FULLKTABLE, LastRowIndex, X, Y, Capacity, Value, Letters, CR).*/
+       nth0(Capacity, LastRow, Value),
+       getLetters(FULLKTABLE, Capacity, Value, LastRowIndex, L_items_list, L_items_weight, L_items_value, Letters).
 
-getLetters(TABLE, currentRowIndex, X, Y, Capacity, Value, Letters, CR) 
-    :-  nth0(currentRowIndex, TABLE, CR), aboveRowIndex is currentRowIndex -1,
-        nth0(aboveRowIndex, TABLE, AR), CR =\= AR, .
+solveKnapsack(Filename, Value, L_items_list, FULLKTABLE)
+    :-  readKnapsackFile(Filename, L_len, Names_L, Weights_L, Values_L, Capacity),
+        knapsack(Capacity, Weights_L, Values_L, Value, Names_L, FULLKTABLE, L_items_list).
 
+getLetters(_, 0, 0, _, _, _, _, []) :- write("quitting"),!.
+getLetters(KTable, C, V, CRI, L_items_list, L_items_value, L_items_weight, [CI|RI])
+    :-  NCRI is CRI - 1,
+        getLastTwoRows(KTable, CRI, UpperRow, BottomRow), 
+        checkElements(V, UpperRow, C, B), B =:= "f", 
+        nth0(NCRI, L_items_list, LI), CI is LI, 
+        nth0(NCRI, L_items_value, CIV), NV is V - CIV,
+        nth0(NCRI, L_items_weight, CC), NC is C - CC, 
+        getLetters(KTable, NC, NV, NCRI, L_items_list, L_items_value, L_items_weight, RI), !.
+getLetters(KTable, C, V, CRI, L_items_list, L_items_value, L_items_weight, RI)
+    :-  NCRI is CRI - 1,
+        getLetters(KTable, C, V, NCRI, L_items_list, L_items_value, L_items_weight, RI), !.
+
+getLastTwoRows(KTable, BottomIndex, UpperRow, BottomRow)
+    :-  BottomIndex>=1, nth0(BottomIndex, KTable, BottomRow), 
+        UPI is BottomIndex - 1, nth0(UPI, KTable, UpperRow).
+
+checkElements(CurrentValue, AboveRow, Capacity, B)
+    :- nth0(Capacity, AboveRow, AboveValue), equals(AboveValue, CurrentValue, B).
+
+equals(X, X, "t") :- !.
+equals(_, _, "f").
+
+checkValue() :- !.
 
 /*
     https://stackoverflow.com/questions/21694499/prolog-checking-if-something-is-the-last-item-in-the-list/21694728
@@ -34,10 +58,6 @@ last(X,[_|Z]) :- last(X,Z).
         return false;
     }
 */
-
-solveKnapsack(Filename, Value, L_items_list)
-    :-  readKnapsackFile(Filename, L_len, Names_L, Weights_L, Values_L, Capacity),
-        knapsack(Capacity, Weights_L, Values_L, Value, L_items_list, FULLKTABLE, CR).
 
 readKnapsackFile(Filename, L_len, Names_L, Weights_L, Values_L, Capacity) 
     :- file_lines(Filename, Lines), 
