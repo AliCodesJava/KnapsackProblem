@@ -1,14 +1,35 @@
-knapsack(Capacity, L_items_weight, L_items_value, Value, L_items_list, FULLKTABLE, Letters)
+/*
+    Ali ABDEDDAIM
+    300113418
+*/
+
+
+knapsack(Capacity, L_items_weight, L_items_value, Value, L_items_list, FULLKTABLE, CleanLetters)
     :- LEN_Y_KTABLE is Capacity + 1, fill(L, 0, LEN_Y_KTABLE), 
        getVWL(VI,WI,L_items_value,L_items_weight, VWPairs), makeKTable(L, 0, VWPairs, KTABLE),
        append([L],KTABLE,FULLKTABLE), length(FULLKTABLE, LENTABLE), 
        LastRowIndex is LENTABLE - 1, nth0(LastRowIndex, FULLKTABLE, LastRow),
        nth0(Capacity, LastRow, Value),
-       getLetters(FULLKTABLE, Capacity, Value, LastRowIndex, L_items_list, L_items_weight, L_items_value, Letters).
+       getLetters(FULLKTABLE, Capacity, Value, LastRowIndex, L_items_list, L_items_weight, L_items_value, Letters),
+       convert_ASCIIDEC_string(Letters, CleanLetters).
+
+writeToFile(Filename,Value,L_items_list)
+    :-  split_string(Filename,".","",L), nth0(0, L,HeadOfFilename),
+        atom_concat(HeadOfFilename, '.sol', SolutionFileName),
+        open(SolutionFileName,write,Out),
+        write(Out,Value),
+        write(Out,"\n"),
+        write(Out,L_items_list),
+        close(Out).
 
 solveKnapsack(Filename, Value, L_items_list, FULLKTABLE)
     :-  readKnapsackFile(Filename, L_len, Names_L, Weights_L, Values_L, Capacity),
-        knapsack(Capacity, Weights_L, Values_L, Value, Names_L, FULLKTABLE, L_items_list).
+        knapsack(Capacity, Weights_L, Values_L, Value, Names_L, FULLKTABLE, L_items_list),
+        writeToFile(Filename, Value, L_items_list).
+
+convert_ASCIIDEC_string([], []).
+convert_ASCIIDEC_string([X|Y], [H|T])
+    :-  char_code(H, X), convert_ASCIIDEC_string(Y, T).
 
 getLetters(_, 0, 0, _, _, _, _, []) :- write("quitting"),!.
 getLetters(KTable, C, V, CRI, L_items_list, L_items_value, L_items_weight, [CI|RI])
@@ -40,24 +61,6 @@ checkValue() :- !.
 */
 last(X,[X]).
 last(X,[_|Z]) :- last(X,Z).
-
-/*
-    int value = kTable[kTable.length-1][kTable[0].length-1];
-    for(int row = kTable.length-1; row>0; row--){
-        if(!searchRowForValue(row - 1, value) && value > 0){
-            value -= problemItems[row - 1].getValue();
-
-            knapsack.addToSack(problemItems[row - 1]);
-        }
-    }
-
-    private boolean searchRowForValue(int row, int value){
-        for(int weight = 1; weight<kTable[row].length; weight++){
-            if(kTable[row][weight] == value) return true;
-        }
-        return false;
-    }
-*/
 
 readKnapsackFile(Filename, L_len, Names_L, Weights_L, Values_L, Capacity) 
     :- file_lines(Filename, Lines), 
