@@ -28,7 +28,7 @@ knapsack(Capacity, L_items_weight, L_items_value, Value, L_items_list, FULLKTABL
        convert_ASCIIDEC_string(Letters, CleanLetters).
 
 /* 
-    fais lecture, résolution et écriture
+    fait lecture, résolution et écriture
 */
 solveKnapsack(Filename, Value, L_items_list)
     :-  readKnapsackFile(Filename, _, Names_L, Weights_L, Values_L, Capacity),
@@ -126,16 +126,17 @@ stream_lines(In, Lines) :- read_string(In, _, Str),
                            split_string(Str, "\n", "", Lines).
 
 /* 
-    Écris la solution valeur,lettres sur un fichier .sol du même nom 
+    Écris la solution valeur,lettres sur un fichier .sol du même nom
+    SOURCE : https://stackoverflow.com/questions/22747147/swi-prolog-write-to-file 
 */
 writeToFile(Filename,Value,L_items_list)
-    :-  split_string(Filename,".","",L), nth0(0, L,HeadOfFilename),
-        atom_concat(HeadOfFilename, '.sol', SolutionFileName),
-        open(SolutionFileName,write,Out),
-        write(Out,Value),
-        write(Out,"\n"),
-        write(Out,L_items_list),
-        close(Out).
+        :-  split_string(Filename,".","",L), nth0(0, L,HeadOfFilename),
+            atom_concat(HeadOfFilename, '.sol', SolutionFileName),
+            open(SolutionFileName,write,Out),
+            write(Out,Value),
+            write(Out,"\n"),
+            write(Out,L_items_list),
+            close(Out).
 
 /* CONSTRUCTION DE LA KTABLE POUR LA SOLUTION DYNAMIQUE */
 /*
