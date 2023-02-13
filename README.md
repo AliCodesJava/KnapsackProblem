@@ -1,9 +1,10 @@
-# Coding Challenge : Knapsack Problem in 4 different paradigms & languages
+# Coding Challenge : Knapsack Problem implemented in 4 different paradigms & languages
 
 ### About the challenge
 
 This repo holds the Knapsack Problem implemented in 4 different paradigms each with a particular language.
-Each paradigm has 1 or 2 solving methods implemented (for ex. dynamic and brute force for the Object-Oriented solution).
+
+For each paradigm used, there is 1 or 2 different techniques for solving the problem (for e.g. dynamic and brute force for the object-oriented solution).
 
 ### Paradigms & languages used
 
@@ -14,8 +15,8 @@ Concurrent | Golang
 Logical | Prolog
 Functional | Scheme
 
-### Goals achieved
+### Goal
 
 Through this challenge, the goals fulfilled are :
-1. Develop a deeper understanding of those paradigms
-2. Learn or get more comfortable at different programming languages
+1. To develop a deeper understanding of those paradigms
+2. To learn (or get more comfortable with) different programming languages
